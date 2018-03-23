@@ -23,7 +23,7 @@ namespace ITI.Work
         readonly Stream _inner;
         readonly KrabouilleMode _mode;
         long _position;
-        byte[] _workingBuffer; // que mode Write
+        readonly byte[] _workingBuffer;
 
         public KrabouilleStream( Stream inner, KrabouilleMode mode, string password )
         {
@@ -76,17 +76,17 @@ namespace ITI.Work
             int nbRead = _inner.Read( buffer, offset, count );
             for( int i = 0; i < nbRead; ++i )
             {
-                buffer[offset + i] = (byte)(buffer[offset + i] + 1);
+                buffer[offset+i] = (byte)(buffer[offset + i] + 1);
             }
-
-            return _inner.Read( buffer, offset, count );
+            return nbRead;
         }
 
         public override void Write( byte[] buffer, int offset, int count )
         {
             if( !CanWrite ) throw new InvalidOperationException();
 
-
+            /// TODO: use _workingBuffer for _inner instead of
+            /// modifying the client buffer[] content!
             for( int i = 0; i < count; ++i )
             {
                 buffer[offset + i] = (byte)(buffer[offset + i] - 1);

@@ -35,6 +35,17 @@ namespace ITI.Work.Tests
             string s = "الغوطة الشرق";
             var sR = RemoveDiacritics( s );
 
+            var sD = s.Normalize( NormalizationForm.FormD );
+            StringBuilder b = null;
+            for( int i = 0; i < sD.Length; ++i )
+            {
+                if( Char.GetUnicodeCategory( sD, i ) == UnicodeCategory.NonSpacingMark )
+                {
+                    if( b == null ) b = new StringBuilder( sD, 0, i, s.Length );
+                }
+                else b?.Append( sD[i] );
+            }
+            return b != null ? b.ToString() : s;
         }
 
         static string RemoveDiacritics( string s )

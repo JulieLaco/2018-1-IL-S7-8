@@ -47,27 +47,31 @@ namespace ITI.Work
 
         public override void Flush()
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public override int Read( byte[] buffer, int offset, int count )
         {
-            throw new NotImplementedException();
+            if( !CanRead ) { throw new NotSupportedException(); }
+            return 0;
         }
 
         public override long Seek( long offset, SeekOrigin origin )
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override void SetLength( long value )
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override void Write( byte[] buffer, int offset, int count )
         {
-            throw new NotImplementedException();
+            if( !CanWrite )
+            {
+                throw new NotSupportedException();
+            }
         }
     }
 }

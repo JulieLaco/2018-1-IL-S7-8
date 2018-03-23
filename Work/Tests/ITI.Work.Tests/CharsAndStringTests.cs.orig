@@ -29,6 +29,8 @@ namespace ITI.Work.Tests
         }
 
 
+<<<<<<< HEAD
+=======
         class A
         {
             readonly public int ToTo;
@@ -48,6 +50,7 @@ namespace ITI.Work.Tests
             int tWithDefault = a?.ToTo ?? -3712;
         }
 
+>>>>>>> originSpi/master
         [Test]
         public void testing_arabic_where_vwels_are_not_Diacritics()
         {
@@ -68,6 +71,10 @@ namespace ITI.Work.Tests
             var sB = RemoveDiacriticsBetter( s );
             sB.Should().BeSameAs( s );
 
+<<<<<<< HEAD
+            var sB2 = RemoveDiacriticsBetter( "â ë l" );
+            sB2.Should().Be( "a e l" );
+=======
             RemoveDiacriticsBetter( "â ë l" ).Should().Be( "a e l" );
             RemoveDiacriticsBetter( "---ù" ).Should().Be( "---u" );
             RemoveDiacriticsBetter( "ï" ).Should().Be( "i" );
@@ -75,10 +82,16 @@ namespace ITI.Work.Tests
             RemoveDiacriticsBetter( "ÂÎ" ).Should().Be( "AI" );
             RemoveDiacriticsBetter( "A" ).Should().BeSameAs( "A" );
             RemoveDiacriticsBetter( "AB" ).Should().BeSameAs( "AB" );
+>>>>>>> originSpi/master
         }
 
         static string RemoveDiacriticsBetter( string s )
         {
+<<<<<<< HEAD
+            throw new NotImplementedException();
+        }
+
+=======
             var sD = s.Normalize( NormalizationForm.FormD );
             StringBuilder b = null;
             for( int i = 0; i < sD.Length; ++i )
@@ -93,6 +106,7 @@ namespace ITI.Work.Tests
         }
 
 
+>>>>>>> originSpi/master
         static string RemoveDiacriticsNaïve( string s )
         {
             var sD = s.Normalize( NormalizationForm.FormD );
@@ -107,6 +121,8 @@ namespace ITI.Work.Tests
             return b.ToString();
         }
 
+<<<<<<< HEAD
+=======
         [Test]
         public void seeing_encoding()
         {
@@ -121,6 +137,7 @@ namespace ITI.Work.Tests
             var noelInUTF32 = Encoding.UTF32.GetBytes( "Noël" );
         }
 
+>>>>>>> originSpi/master
 
     }
 }

@@ -45,7 +45,6 @@ namespace ITI.Work.Tests
                 }
                 else b?.Append( sD[i] );
             }
-            return b != null ? b.ToString() : s;
         }
 
         static string RemoveDiacritics( string s )

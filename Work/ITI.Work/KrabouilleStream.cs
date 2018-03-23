@@ -20,40 +20,47 @@ namespace ITI.Work
 
     public class KrabouilleStream : Stream
     {
-        private bool _canRead;
-        private bool _canWrite;
+        readonly Stream _inner;
+        readonly KrabouilleMode _mode;
+        long _position;
 
         public KrabouilleStream( Stream inner, KrabouilleMode mode, string password )
         {
-            if( mode == KrabouilleMode.Krabouille && !(inner.CanRead) )
+            if( inner == null ) throw new ArgumentException( nameof(inner) );
+            if( String.IsNullOrEmpty( password ) ) throw new ArgumentException();
+            if( !inner.CanWrite && mode == KrabouilleMode.Krabouille )
             {
-                _canWrite = true;
+                throw new ArgumentException(" Inner must be writable for Krabouille mode.", nameof(inner) );
             }
-            else if( mode == KrabouilleMode.Unkrabouille && !(inner.CanWrite) )
+            if( !inner.CanRead && mode == KrabouilleMode.Unkrabouille )
             {
-                _canRead = true;
+                throw new ArgumentException( " Inner must be readable for Unkrabouille mode.", nameof(inner) );
             }
+
+            _inner = inner;
+            _mode = mode;
         }
 
-        public override bool CanRead => _canRead;
+        public override bool CanRead => _mode == KrabouilleMode.Unkrabouille;
 
         public override bool CanSeek => false;
 
-        public override bool CanWrite => _canWrite;
+        public override bool CanWrite => _mode == KrabouilleMode.Krabouille;
 
         public override long Length => throw new NotSupportedException();
 
-        public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public override void Flush()
+        public override long Position
         {
-            return;
+            get => _position;
+            set => throw new NotSupportedException();
         }
+
+        public override void Flush() => _inner.Flush();
 
         public override int Read( byte[] buffer, int offset, int count )
         {
-            if( !CanRead ) { throw new NotSupportedException(); }
-            return 0;
+            if( !CanRead ) throw new InvalidOperationException();
+            return _inner.Read(buffer, offset, count);       
         }
 
         public override long Seek( long offset, SeekOrigin origin )
@@ -68,10 +75,11 @@ namespace ITI.Work
 
         public override void Write( byte[] buffer, int offset, int count )
         {
-            if( !CanWrite )
-            {
-                throw new NotSupportedException();
-            }
+            if( !CanWrite ) throw new InvalidOperationException();
+
+
+
+            _inner.Write( buffer, offset, count );
         }
     }
 }

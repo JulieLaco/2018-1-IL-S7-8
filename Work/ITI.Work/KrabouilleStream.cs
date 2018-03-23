@@ -20,17 +20,28 @@ namespace ITI.Work
 
     public class KrabouilleStream : Stream
     {
+        private bool _canRead;
+        private bool _canWrite;
+
         public KrabouilleStream( Stream inner, KrabouilleMode mode, string password )
         {
+            if( mode == KrabouilleMode.Krabouille && !(inner.CanRead) )
+            {
+                _canWrite = true;
+            }
+            else if( mode == KrabouilleMode.Unkrabouille && !(inner.CanWrite) )
+            {
+                _canRead = true;
+            }
         }
 
-        public override bool CanRead => throw new NotImplementedException();
+        public override bool CanRead => _canRead;
 
-        public override bool CanSeek => throw new NotImplementedException();
+        public override bool CanSeek => false;
 
-        public override bool CanWrite => throw new NotImplementedException();
+        public override bool CanWrite => _canWrite;
 
-        public override long Length => throw new NotImplementedException();
+        public override long Length => throw new NotSupportedException();
 
         public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 

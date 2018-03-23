@@ -85,12 +85,12 @@ namespace ITI.Work
         {
             if( !CanWrite ) throw new InvalidOperationException();
 
-            int counter = 0;
-
             /// TODO: use _workingBuffer for _inner instead of
             /// modifying the client buffer[] content!
             for( int i = 0; i < count; ++i )
             {
+                buffer[offset + i] = (byte)(buffer[offset + i] - 1);
+            }
                 _workingBuffer[counter] = (byte)(buffer[offset + i] - 1);
 
                 if( i == _workingBuffer.Length - 1 )

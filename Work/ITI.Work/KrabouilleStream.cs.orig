@@ -89,7 +89,7 @@ namespace ITI.Work
             if( !CanWrite ) throw new InvalidOperationException();
 
 <<<<<<< HEAD
-            buffer.CopyTo( _workingBuffer, 0 );
+            int counter = 0;
 
 =======
 >>>>>>> Starting implementation.
@@ -98,13 +98,24 @@ namespace ITI.Work
             for( int i = 0; i < count; ++i )
             {
 <<<<<<< HEAD
-                _workingBuffer[offset + i] = (byte)(buffer[offset + i] - 1);
+                _workingBuffer[counter] = (byte)(buffer[offset + i] - 1);
+
+                if( i == _workingBuffer.Length - 1 )
+                {
+                    _inner.Write( _workingBuffer, offset, counter );
+                    Array.Clear( _workingBuffer, 0, _workingBuffer.Length );
+                    counter = 0;
+                }
+                else
+                {
+                    counter++;
+                }
 =======
                 buffer[offset + i] = (byte)(buffer[offset + i] - 1);
 >>>>>>> Starting implementation.
             }
 
-            _inner.Write( _workingBuffer, 0, count );
+            _inner.Write( _workingBuffer, offset, counter );
         }
     }
 }

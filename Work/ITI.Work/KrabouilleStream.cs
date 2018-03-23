@@ -102,7 +102,6 @@ namespace ITI.Work
                     count -= _workingBuffer.Length;
                 }
             }
-
         }
 
         void WriteWorkingBuffer( int count )

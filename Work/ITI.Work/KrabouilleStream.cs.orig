@@ -24,7 +24,10 @@ namespace ITI.Work
         readonly KrabouilleMode _mode;
         long _position;
         readonly byte[] _workingBuffer;
+<<<<<<< HEAD
         readonly byte[] _secretKey;
+=======
+>>>>>>> Starting implementation.
 
         public KrabouilleStream( Stream inner, KrabouilleMode mode, string password )
         {
@@ -40,10 +43,9 @@ namespace ITI.Work
             }
             if( _mode == KrabouilleMode.Krabouille ) _workingBuffer = new byte[256];
 <<<<<<< HEAD
-
-=======
             _secretKey = Encoding.UTF8.GetBytes( password );
->>>>>>> Time to use Password.
+=======
+>>>>>>> Starting implementation.
             _inner = inner;
             _mode = mode;
         }
@@ -62,7 +64,7 @@ namespace ITI.Work
             set => throw new NotSupportedException();
         }
 
-        public override void Flush() => _inner.Flush(); 
+        public override void Flush() => _inner.Flush();
 
         public override long Seek( long offset, SeekOrigin origin )
         {
@@ -81,7 +83,11 @@ namespace ITI.Work
             int nbRead = _inner.Read( buffer, offset, count );
             for( int i = 0; i < nbRead; ++i )
             {
+<<<<<<< HEAD
+                buffer[offset + i] = (byte)(buffer[offset + i] + 1);
+=======
                 buffer[offset+i] = (byte)(buffer[offset + i] + 1);
+>>>>>>> Starting implementation.
             }
             return nbRead;
         }
@@ -90,6 +96,7 @@ namespace ITI.Work
         {
             if( !CanWrite ) throw new InvalidOperationException();
 
+<<<<<<< HEAD
             while( count > 0 )
             {
                 if( count < _workingBuffer.Length )
@@ -106,24 +113,16 @@ namespace ITI.Work
                     count -= _workingBuffer.Length;
                 }
             }
-                _workingBuffer[counter] = (byte)(buffer[offset + i] - 1);
 
-                if( i == _workingBuffer.Length - 1 )
-                {
-                    _inner.Write( _workingBuffer, offset, counter );
-                    Array.Clear( _workingBuffer, 0, _workingBuffer.Length );
-                    counter = 0;
-                }
-                else
-                {
-                    counter++;
-                }
-            }
-
-<<<<<<< HEAD
-            _inner.Write( _workingBuffer, offset, counter );
-=======
         }
+=======
+            /// TODO: use _workingBuffer for _inner instead of
+            /// modifying the client buffer[] content!
+            for( int i = 0; i < count; ++i )
+            {
+                buffer[offset + i] = (byte)(buffer[offset + i] - 1);
+            }
+>>>>>>> Starting implementation.
 
         void WriteWorkingBuffer( int count )
         {
@@ -132,7 +131,6 @@ namespace ITI.Work
                 _workingBuffer[i] = (byte)(_workingBuffer[i] - 1);
             }
             _inner.Write( _workingBuffer, 0, count );
->>>>>>> Time to use Password.
         }
     }
 }

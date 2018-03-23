@@ -26,22 +26,23 @@ namespace ITI.Work
 
         public KrabouilleStream( Stream inner, KrabouilleMode mode, string password )
         {
-            if( inner == null ) throw new ArgumentException( nameof(inner) );
-            if( String.IsNullOrEmpty( password ) ) throw new ArgumentException();
+            if( inner == null ) throw new ArgumentNullException( nameof( inner ) );
+            if( String.IsNullOrEmpty( password ) ) throw new ArgumentNullException( nameof( password ) );
             if( !inner.CanWrite && mode == KrabouilleMode.Krabouille )
             {
-                throw new ArgumentException(" Inner must be writable for Krabouille mode.", nameof(inner) );
+                throw new ArgumentException( "inner must be writable for Krabouille mode.", nameof( inner ) );
             }
             if( !inner.CanRead && mode == KrabouilleMode.Unkrabouille )
             {
-                throw new ArgumentException( " Inner must be readable for Unkrabouille mode.", nameof(inner) );
+                throw new ArgumentException( "inner must be readable for Unkrabouille mode.", nameof( inner ) );
             }
-
             _inner = inner;
             _mode = mode;
-        }
+            }
 
         public override bool CanRead => _mode == KrabouilleMode.Unkrabouille;
+            _mode = mode;
+        }
 
         public override bool CanSeek => false;
 
@@ -57,11 +58,7 @@ namespace ITI.Work
 
         public override void Flush() => _inner.Flush();
 
-        public override int Read( byte[] buffer, int offset, int count )
-        {
-            if( !CanRead ) throw new InvalidOperationException();
             return _inner.Read(buffer, offset, count);       
-        }
 
         public override long Seek( long offset, SeekOrigin origin )
         {
@@ -71,6 +68,12 @@ namespace ITI.Work
         public override void SetLength( long value )
         {
             throw new NotSupportedException();
+        }
+
+        public override int Read( byte[] buffer, int offset, int count )
+        {
+            if( !CanRead ) throw new InvalidOperationException();
+            return _inner.Read( buffer, offset, count );
         }
 
         public override void Write( byte[] buffer, int offset, int count )

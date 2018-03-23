@@ -56,10 +56,10 @@ namespace ITI.Work.Tests
             byte[] written = Write( data, password );
             written.Should().NotBeEquivalentTo( data );
 
-            byte[] readBack = Read( data, password );
+            byte[] readBack = Read( written, password );
             readBack.Should().BeEquivalentTo( data );
 
-            byte[] readFailed = Read( data, password + password );
+            byte[] readFailed = Read( written, password + password );
             readFailed.Should().NotBeEquivalentTo( data );
         }
 

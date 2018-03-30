@@ -77,7 +77,8 @@ namespace ITI.Work
             int nbRead = _inner.Read( buffer, offset, count );
             for( int i = 0; i < nbRead; ++i )
             {
-                buffer[offset + i] = (byte)(buffer[offset + i] + 1);
+                buffer[offset+i] ^= _secretKey[_position % _secretKey.Length];
+                _position++;
             }
             return nbRead;
         }
@@ -104,13 +105,17 @@ namespace ITI.Work
             }
         }
 
+        }
+        {
         void WriteWorkingBuffer( int count )
         {
             for( int i = 0; i < count; ++i )
             {
-                _workingBuffer[i] = (byte)(_workingBuffer[i] - 1);
-            }
-            _inner.Write( _workingBuffer, 0, count );
+                byte bSecret = _secretKey[_position % _secretKey.Length];
+                byte newValue = _workingBuffer[i] ^= bSecret;
+                byte newSecret = (byte)(bSecret + newValue);
+                _secretKey[_position % _secretKey.Length] = newSecret;
+                _position++;
             }
             _inner.Write( _workingBuffer, 0, count );
         }

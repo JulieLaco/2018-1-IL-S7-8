@@ -23,6 +23,7 @@ namespace ITI.Work
         readonly Stream _inner;
         readonly KrabouilleMode _mode;
         long _position;
+        byte[] _workingBuffer; // que mode Write
 
         public KrabouilleStream( Stream inner, KrabouilleMode mode, string password )
         {
@@ -36,13 +37,13 @@ namespace ITI.Work
             {
                 throw new ArgumentException( "inner must be readable for Unkrabouille mode.", nameof( inner ) );
             }
+            if( _mode == KrabouilleMode.Krabouille ) _workingBuffer = new byte[256];
+
             _inner = inner;
             _mode = mode;
-            }
+        }
 
         public override bool CanRead => _mode == KrabouilleMode.Unkrabouille;
-            _mode = mode;
-        }
 
         public override bool CanSeek => false;
 
@@ -56,9 +57,7 @@ namespace ITI.Work
             set => throw new NotSupportedException();
         }
 
-        public override void Flush() => _inner.Flush();
-
-            return _inner.Read(buffer, offset, count);       
+        public override void Flush() => _inner.Flush(); 
 
         public override long Seek( long offset, SeekOrigin origin )
         {
@@ -73,6 +72,13 @@ namespace ITI.Work
         public override int Read( byte[] buffer, int offset, int count )
         {
             if( !CanRead ) throw new InvalidOperationException();
+
+            int nbRead = _inner.Read( buffer, offset, count );
+            for( int i = 0; i < nbRead; ++i )
+            {
+                buffer[offset + i] = (byte)(buffer[offset + i] + 1);
+            }
+
             return _inner.Read( buffer, offset, count );
         }
 
@@ -81,8 +87,12 @@ namespace ITI.Work
             if( !CanWrite ) throw new InvalidOperationException();
 
 
+            for( int i = 0; i < count; ++i )
+            {
+                buffer[offset + i] = (byte)(buffer[offset + i] - 1);
+            }
 
-            _inner.Write( buffer, offset, count );
+            _inner.Write( _workingBuffer, 0, count );
         }
     }
 }

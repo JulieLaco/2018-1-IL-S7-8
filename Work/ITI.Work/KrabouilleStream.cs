@@ -24,6 +24,7 @@ namespace ITI.Work
         readonly KrabouilleMode _mode;
         long _position;
         readonly byte[] _workingBuffer;
+        readonly byte[] _secretKey;
 
         public KrabouilleStream( Stream inner, KrabouilleMode mode, string password )
         {
@@ -38,7 +39,7 @@ namespace ITI.Work
                 throw new ArgumentException( "inner must be readable for Unkrabouille mode.", nameof( inner ) );
             }
             if( _mode == KrabouilleMode.Krabouille ) _workingBuffer = new byte[256];
-
+            _secretKey = Encoding.UTF8.GetBytes( password );
             _inner = inner;
             _mode = mode;
         }
@@ -85,23 +86,33 @@ namespace ITI.Work
         {
             if( !CanWrite ) throw new InvalidOperationException();
 
-            /// TODO: use _workingBuffer for _inner instead of
-            /// modifying the client buffer[] content!
-            for( int i = 0; i < count; ++i )
+            while( count > 0 )
             {
-                buffer[offset + i] = (byte)(buffer[offset + i] - 1);
-            }
-                _workingBuffer[counter] = (byte)(buffer[offset + i] - 1);
-
-                if( i == _workingBuffer.Length - 1 )
+                if( count < _workingBuffer.Length )
                 {
-                    _inner.Write( _workingBuffer, offset, counter );
-                    Array.Clear( _workingBuffer, 0, _workingBuffer.Length );
-                    counter = 0;
+                    Array.Copy( buffer, offset, _workingBuffer, 0, count );
+                    WriteWorkingBuffer( count );
+                    count = 0;
                 }
                 else
                 {
-                    counter++;
+                    Array.Copy( buffer, offset, _workingBuffer, 0, _workingBuffer.Length );
+                    WriteWorkingBuffer( _workingBuffer.Length );
+                    offset += _workingBuffer.Length;
+                    count -= _workingBuffer.Length;
+                }
+            }
+                _workingBuffer[counter] = (byte)(buffer[offset + i] - 1);
+
+        }
+
+        void WriteWorkingBuffer( int count )
+        {
+            for( int i = 0; i < count; ++i )
+            {
+                _workingBuffer[i] = (byte)(_workingBuffer[i] - 1);
+            }
+            _inner.Write( _workingBuffer, 0, count );
                 }
             }
 

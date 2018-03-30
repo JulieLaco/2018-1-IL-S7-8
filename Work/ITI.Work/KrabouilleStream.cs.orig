@@ -24,6 +24,7 @@ namespace ITI.Work
         readonly KrabouilleMode _mode;
         long _position;
         readonly byte[] _workingBuffer;
+        readonly byte[] _secretKey;
 
         public KrabouilleStream( Stream inner, KrabouilleMode mode, string password )
         {
@@ -41,7 +42,8 @@ namespace ITI.Work
 <<<<<<< HEAD
 
 =======
->>>>>>> Starting implementation.
+            _secretKey = Encoding.UTF8.GetBytes( password );
+>>>>>>> Time to use Password.
             _inner = inner;
             _mode = mode;
         }
@@ -88,16 +90,22 @@ namespace ITI.Work
         {
             if( !CanWrite ) throw new InvalidOperationException();
 
-<<<<<<< HEAD
-            int counter = 0;
-
-=======
->>>>>>> Starting implementation.
-            /// TODO: use _workingBuffer for _inner instead of
-            /// modifying the client buffer[] content!
-            for( int i = 0; i < count; ++i )
+            while( count > 0 )
             {
-<<<<<<< HEAD
+                if( count < _workingBuffer.Length )
+                {
+                    Array.Copy( buffer, offset, _workingBuffer, 0, count );
+                    WriteWorkingBuffer( count );
+                    count = 0;
+                }
+                else
+                {
+                    Array.Copy( buffer, offset, _workingBuffer, 0, _workingBuffer.Length );
+                    WriteWorkingBuffer( _workingBuffer.Length );
+                    offset += _workingBuffer.Length;
+                    count -= _workingBuffer.Length;
+                }
+            }
                 _workingBuffer[counter] = (byte)(buffer[offset + i] - 1);
 
                 if( i == _workingBuffer.Length - 1 )
@@ -110,12 +118,21 @@ namespace ITI.Work
                 {
                     counter++;
                 }
-=======
-                buffer[offset + i] = (byte)(buffer[offset + i] - 1);
->>>>>>> Starting implementation.
             }
 
+<<<<<<< HEAD
             _inner.Write( _workingBuffer, offset, counter );
+=======
+        }
+
+        void WriteWorkingBuffer( int count )
+        {
+            for( int i = 0; i < count; ++i )
+            {
+                _workingBuffer[i] = (byte)(_workingBuffer[i] - 1);
+            }
+            _inner.Write( _workingBuffer, 0, count );
+>>>>>>> Time to use Password.
         }
     }
 }

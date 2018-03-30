@@ -58,7 +58,7 @@ namespace ITI.Work
             set => throw new NotSupportedException();
         }
 
-        public override void Flush() => _inner.Flush(); 
+        public override void Flush() => _inner.Flush();
 
         public override long Seek( long offset, SeekOrigin origin )
         {
@@ -77,7 +77,7 @@ namespace ITI.Work
             int nbRead = _inner.Read( buffer, offset, count );
             for( int i = 0; i < nbRead; ++i )
             {
-                buffer[offset+i] = (byte)(buffer[offset + i] + 1);
+                buffer[offset + i] = (byte)(buffer[offset + i] + 1);
             }
             return nbRead;
         }
@@ -102,7 +102,6 @@ namespace ITI.Work
                     count -= _workingBuffer.Length;
                 }
             }
-                _workingBuffer[counter] = (byte)(buffer[offset + i] - 1);
 
         }
 
@@ -113,10 +112,6 @@ namespace ITI.Work
                 _workingBuffer[i] = (byte)(_workingBuffer[i] - 1);
             }
             _inner.Write( _workingBuffer, 0, count );
-                }
-            }
-
-            _inner.Write( _workingBuffer, offset, counter );
         }
     }
 }

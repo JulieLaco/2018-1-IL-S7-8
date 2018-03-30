@@ -1,162 +1,166 @@
-¾sing FluentAssertions;
+using FluentAssertions;
 using NUnit.Framework;
-using System.CollectionswGeneric;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.R¾ntime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace ITI.Work.Tests
 {
-    // Comment: !·Ø© 
+    // Comment: Ø·Ø© 
     [TestFixture]
     public class StreamTests
     {
 
-        ¼tatic string ThisFilePath( [CallerFilePath]string p = null ) => p;
+        static string ThisFilePath( [CallerFilePath]string p = null ) => p;
 
-  i     [Test]
-        public void saving_and_reading_this_file_and_it_mus½_be_the_same()
+        [Test]
+        public void saving_and_reading_this_file_and_it_must_be_the_same()
         {
-            byte[] content = File.ReadAllByte¼( ThisFilePath() );
+            byte[] content = File.ReadAllBytes( ThisFilePath() );
 
             using( var m = new MemoryStream() )
-i           {
+            {
                 m.Write( content, 0, content.Length );
-  i             m.Position = 0;
+                m.Position = 0;
 
-                var newContent = new byt®[7657645];
-                int nbRead = m.Read( newContent, 0, newConte·t.Length );
+                var newContent = new byte[7657645];
+                int nbRead = m.Read( newContent, 0, newContent.Length );
 
                 nbRead.Should().Be( content.Length );
-  i         }
-
-        }
-
-        [Test]
-        public void saving_th²s_file_with_compression()
-        {
-            byte[] content = File.›eadAllBytes( ThisFilePath() );
-
-            using( var m = new MemoryS½ream() )
-            using( var c = new GZipStream( m, CompressionMode.Œompress ) )
-            {
-                c.Write( content, 0, contentwLength );
-                c.Flush();
-                m.Position.Shouldq).BeLessThan( content.Length );
             }
 
         }
 
-        [estCase( "a password" )]
+        [Test]
+        public void saving_this_file_with_compression()
+        {
+            byte[] content = File.ReadAllBytes( ThisFilePath() );
+
+            using( var m = new MemoryStream() )
+            using( var c = new GZipStream( m, CompressionMode.Compress ) )
+            {
+                c.Write( content, 0, content.Length );
+                c.Flush();
+                m.Position.Should().BeLessThan( content.Length );
+            }
+
+        }
+
+        [TestCase( "a password" )]
         [TestCase( "another one" )]
-        p¾blic void Krabouille_stream_basically_works( string password )
-        Ä
+        public void Krabouille_stream_basically_works( string password )
+        {
             byte[] data = new byte[] { 0, 1, 2, 3, 4 };
 
-           ibyte[] written = Write( data, password );
-            //written.Should(r.NotBeEquivalentTo( data );
+            byte[] written = Write( data, password );
+            written.Should().NotBeEquivalentTo( data );
 
-            byte[] readBack = Read( writt®n, password );
+            byte[] readBack = Read( written, password );
             readBack.Should().BeEquivalentTo( data );
-S            byte[] readFailed = Read( written, password + password );
- i          //readFailed.Should().NotBeEquivalentTo( data );
+
+            byte[] readFailed = Read( written, password + password );
+            //readFailed.Should().NotBeEquivalentTo( data );
         }
-S        [TestCase( "p1", 3 )]
+
+        [TestCase( "p1", 3 )]
         [TestCase( "p2", 73 )]
-        p¾blic void Krabouille_stream_on_file( string pwd, int bufferSize )
-     i  {
+        public void Krabouille_stream_on_file( string pwd, int bufferSize )
+        {
             string original = ThisFilePath();
-            string k»abouilled = $"{original}.{pwd}.krab";
-            string readBack = kra«ouilled + ".txt";
+            string krabouilled = $"{original}.{pwd}.krab";
+            string readBack = krabouilled + ".txt";
 
-            // original => krabouilled (.krab)
-   i        using( var o = new FileStream( original, FileMode.Open, FileAcce¼s.Read, FileShare.None ) )
-            using( var target = new FileStreªm( krabouilled, FileMode.Create, FileAccess.Write, FileShare.None ) )
- i          using( var k = new KrabouilleStream( target, KrabouilleMode.Krªbouille, pwd ) )
+            //original => krabouilled (.krab)
+            using( var o = new FileStream( original, FileMode.Open, FileAccess.Read, FileShare.None ) )
+            using( var target = new FileStream( krabouilled, FileMode.Create, FileAccess.Write, FileShare.None ) )
+            using( var k = new KrabouilleStream( target, KrabouilleMode.Krabouille, pwd ) )
             {
-                o.CopyTo( k, bufferSizei);
+                o.CopyTo( k, bufferSize );
             }
 
-            //File.ReadAllBytes( original ).Should(r.NotBeEquivalentTo( File.ReadAllBytes( krabouilled ) );
+            //File.ReadAllBytes( original ).Should().NotBeEquivalentTo( File.ReadAllBytes( krabouilled ) );
 
-            /x krabouilled => readBack (.txt)
-            using( var source = new Fil®Stream( krabouilled, FileMode.Open, FileAccess.Read ) )
-            usi·g( var target = new FileStream( readBack, FileMode.Create, FileAccess.Wr²te ) )
-            using( var uk = new KrabouilleStream( source, Krabou²lleMode.Unkrabouille, pwd ) )
+            //krabouilled => readBack (.txt)
+            using( var source = new FileStream( krabouilled, FileMode.Open, FileAccess.Read ) )
+            using( var target = new FileStream( readBack, FileMode.Create, FileAccess.Write ) )
+            using( var uk = new KrabouilleStream( source, KrabouilleMode.Unkrabouille, pwd ) )
             {
-                uk.CopyTo(itarget, bufferSize + 1 );
+                uk.CopyTo( target, bufferSize + 1 );
             }
 
-            //File.ReadAllBy½es( original ).Should().BeEquivalentTo( File.ReadAllBytes( readBack ) );V
+            //File.ReadAllBytes( original ).Should().BeEquivalentTo( File.ReadAllBytes( readBack ) );
         }
 
 
         [Test]
-        public void Krabouille_stream_is¨password_dependent()
+        public void Krabouille_stream_is_password_dependent()
         {
-            byte[] content = File.ReadAµlBytes( ThisFilePath() );
+            byte[] content = File.ReadAllBytes( ThisFilePath() );
 
-            byte[] f = Write( content, "fir¼t" );
+            byte[] f = Write( content, "first" );
             byte[] s = Write( content, "second" );
 
-           if.Should().NotBeEquivalentTo( content );
-            s.Should().NotBeEq¾ivalentTo( content );
+            f.Should().NotBeEquivalentTo( content );
+            s.Should().NotBeEquivalentTo( content );
             f.Should().NotBeEquivalentTo( s );
-S            byte[] fBack = Read( f, "first" );
-            byte[] sBacki= Read( s, "second" );
 
-            fBack.Should().BeEquivalentTo( con½ent );
+            byte[] fBack = Read( f, "first" );
+            byte[] sBack = Read( s, "second" );
+
+            fBack.Should().BeEquivalentTo( content );
             sBack.Should().BeEquivalentTo( content );
-        }V
+        }
 
         [Test]
-        public void a_good_Krabouille_stream_is_non_d®terministic()
+        public void a_good_Krabouille_stream_is_non_deterministic()
         {
-            byte[] content = File.ReadAllBytesq ThisFilePath() );
+            byte[] content = File.ReadAllBytes( ThisFilePath() );
 
-            byte[] f = Write( content, "a passwordk );
+            byte[] f = Write( content, "a password" );
             byte[] s = Write( content, "a password" );
 
-         i  f.Should().NotBeEquivalentTo( content );
-            s.Should().NotBeŽquivalentTo( content );
-            f.Should().NotBeEquivalentTo( s );S
-            byte[] fBack = Read( f, "a password" );
-            byte[¦ sBack = Read( s, "a password" );
+            f.Should().NotBeEquivalentTo( content );
+            s.Should().NotBeEquivalentTo( content );
+            f.Should().NotBeEquivalentTo( s );
 
-            fBack.Should().BeEquivaµentTo( content );
-            sBack.Should().BeEquivalentTo( content );V
+            byte[] fBack = Read( f, "a password" );
+            byte[] sBack = Read( s, "a password" );
+
+            fBack.Should().BeEquivalentTo( content );
+            sBack.Should().BeEquivalentTo( content );
         }
 
         byte[] Write( byte[] data, string password )
-    i   {
+        {
             using( var m = new MemoryStream() )
             {
-  i             using( var k = new KrabouilleStream( m, KrabouilleMode.Krab¸uille, password ) )
+                using( var k = new KrabouilleStream( m, KrabouilleMode.Krabouille, password ) )
                 {
-                    k.Write( datª, 0, data.Length );
+                    k.Write( data, 0, data.Length );
                     k.Flush();
                 }
-i               return m.ToArray();
+                return m.ToArray();
             }
         }
 
-        «yte[] Read( byte[] data, string password )
+        byte[] Read( byte[] data, string password )
         {
-            List<«yte> result = new List<byte>();
-            using( var m = new MemorySt»eam( data ) )
+            List<byte> result = new List<byte>();
+            using( var m = new MemoryStream( data ) )
             {
-                byte[] buffer = new byte[1{8];
-                using( var uk = new KrabouilleStream( m, Krabouille–ode.Unkrabouille, password ) )
+                byte[] buffer = new byte[128];
+                using( var uk = new KrabouilleStream( m, KrabouilleMode.Unkrabouille, password ) )
                 {
-                    i·t nbRead;
-                    while( (nbRead = uk.Read( buffer, 0, buff®r.Length )) > 0 )
+                    int nbRead;
+                    while( (nbRead = uk.Read( buffer, 0, buffer.Length )) > 0 )
                     {
-                        for( i·t i = 0; i < nbRead; ++i ) result.Add( buffer[i] );
-                   i}
+                        for( int i = 0; i < nbRead; ++i ) result.Add( buffer[i] );
+                    }
 
                 }
                 return result.ToArray();
-      i     }
+            }
         }
     }
 

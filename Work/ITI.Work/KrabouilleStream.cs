@@ -85,11 +85,13 @@ namespace ITI.Work
         {
             if( !CanWrite ) throw new InvalidOperationException();
 
+            buffer.CopyTo( _workingBuffer, 0 );
+
             /// TODO: use _workingBuffer for _inner instead of
             /// modifying the client buffer[] content!
             for( int i = 0; i < count; ++i )
             {
-                buffer[offset + i] = (byte)(buffer[offset + i] - 1);
+                _workingBuffer[offset + i] = (byte)(buffer[offset + i] - 1);
             }
 
             _inner.Write( _workingBuffer, 0, count );

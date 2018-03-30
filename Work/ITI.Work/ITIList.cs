@@ -45,6 +45,19 @@ namespace ITI.Work
 
         public void InsertAt( int index, int value )
         {
+            if( index < 0 || index > _count ) throw new IndexOutOfRangeException();
+
+            if( _count == _tab.Length )
+            {
+                this.Add( value );
+            }
+            else
+            {
+                Array.Copy( _tab, index, _tab, index + 1, _count - index );
+                _tab[index] = value;
+                _count++;
+            }
+            
         }
 
         public int IndexOf( int i )
@@ -60,7 +73,7 @@ namespace ITI.Work
         {
             if( _count == _tab.Length )
             {
-                var newTab = new int[_tab.Length + 1];
+                var newTab = new int[_tab.Length * 2];
                 Array.Copy( _tab, newTab, _count );
                 _tab = newTab;
             }

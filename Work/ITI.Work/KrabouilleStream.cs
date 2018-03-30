@@ -111,6 +111,8 @@ namespace ITI.Work
                 _workingBuffer[i] = (byte)(_workingBuffer[i] - 1);
             }
             _inner.Write( _workingBuffer, 0, count );
+            }
+            _inner.Write( _workingBuffer, 0, count );
         }
     }
 }

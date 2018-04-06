@@ -1,29 +1,28 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ITI.Work
 {
-    public class ITIList<T> : IITIList<T>
+    public class ITIListInt : IITIListInt
     {
-        T[] _tab;
+        int[] _tab;
         int _count;
 
-        public ITIList()
+        public ITIListInt()
         {
-            _tab = new T[4];
+            _tab = new int[4];
         }
 
-        public ITIList( int initialCapacity )
+        public ITIListInt( int initialCapacity )
         {
             if( initialCapacity <= 0 ) throw new ArgumentNullException( nameof( initialCapacity ), "Must be positive." );
-            _tab = new T[initialCapacity];
+            _tab = new int[initialCapacity];
         }
 
         public int Count => _count;
 
-        public T this[ int index ]
+        public int this[ int index ]
         {
             get
             {
@@ -44,7 +43,7 @@ namespace ITI.Work
             --_count;
         }
 
-        public void InsertAt( int index, T value )
+        public void InsertAt( int index, int value )
         {
             if( index < 0 || index > _count ) throw new IndexOutOfRangeException();
 
@@ -52,25 +51,18 @@ namespace ITI.Work
             Array.Copy( _tab, index, _tab, index + 1, _count - index );
             _tab[index] = value;
             _count++;
-            else
-            {
-                Array.Copy( _tab, index, _tab, index + 1, _count - index );
-                _tab[index] = value;
-                _count++;
-            }
-            
         }
 
-        public int IndexOf( T i )
+        public int IndexOf( int i )
         {
             for( int x = 0; x < _count; ++x )
             {
-                if( _tab[x].Equals( i ) ) return x;
+                if( _tab[x] == i ) return x;
             }
             return -1;
         }
 
-        public void Add( T i )
+        public void Add( int i )
         {
             if( _count == _tab.Length ) ResizeInternalArray();
             _tab[_count++] = i;
@@ -78,41 +70,17 @@ namespace ITI.Work
 
         void ResizeInternalArray()
         {
-            var newTab = new T[_tab.Length * 2];
+            var newTab = new int[_tab.Length * 2];
             Array.Copy( _tab, newTab, _count );
             _tab = newTab;
         }
+    }
 
-        class E : IEnumerator<T>
+    public class ITIListString
+    {
+
+        public void Add( string s )
         {
-            readonly ITIList<T> _papa;
-
-            public E( ITIList<T> papa )
-            {
-                _papa = papa;
-            }
-
-            public T Current => ;
-
-            object IEnumerator.Current => Current;
-
-            public void Dispose()
-            {
-            }
-
-            public bool MoveNext()
-            {
-            }
-
-            public void Reset() => throw new NotSupportedException();
         }
-
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            return new E( this );
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

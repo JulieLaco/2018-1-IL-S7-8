@@ -23,11 +23,11 @@ namespace ITI.Work.Tests
             }
 
             ///
-            using( IEnumerator<int> e = myList.GetEnumerator() )
+            using( IEnumerator<int> ie = myList.GetEnumerator() )
             {
-                while( e.MoveNext() )
+                while( ie.MoveNext() )
                 {
-                    Console.WriteLine( e.Current );
+                    Console.WriteLine( ie.Current );
                 }
             }
 
@@ -46,10 +46,6 @@ namespace ITI.Work.Tests
             }
 
         }
-
-
-
-    }
 
         [Test]
         public void how_list_works()
@@ -96,7 +92,7 @@ namespace ITI.Work.Tests
                 myList.InsertAt( r.Next() % (myList.Count + 1), i + 1 );
             }
 
-            var checkList = new int[ listSize ];
+            var checkList = new int[listSize];
 
             for( int i = 0; i < listSize; ++i )
             {
@@ -142,6 +138,7 @@ namespace ITI.Work.Tests
             myList[1].Should().Be( -8 );
             myList[2].Should().Be( 10 );
         }
-
     }
 }
+
+

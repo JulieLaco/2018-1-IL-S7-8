@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace ITI.Work
@@ -49,9 +50,7 @@ namespace ITI.Work
             if( index < 0 || index > _count ) throw new IndexOutOfRangeException();
 
             if( _count == _tab.Length ) ResizeInternalArray();
-            Array.Copy( _tab, index, _tab, index + 1, _count - index );
-            _tab[index] = value;
-            _count++;
+
             else
             {
                 Array.Copy( _tab, index, _tab, index + 1, _count - index );
@@ -86,22 +85,42 @@ namespace ITI.Work
         class E : IEnumerator<T>
         {
             readonly ITIList<T> _papa;
+            int _indexer;
+            private bool _disposed = false;
+            //SafeHandle handle = new SafeHandle( IntPtr.Zero, true );
 
             public E( ITIList<T> papa )
             {
                 _papa = papa;
+                _indexer = -1;
             }
 
-            public T Current => ;
+            public T Current => _papa._tab[_indexer];
 
             object IEnumerator.Current => Current;
 
             public void Dispose()
             {
+                Dispose( true );
+                GC.SuppressFinalize( this );
+
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                //if( _disposed ) return;
+                //if(disposing)
+                //{
+                //    handle.Dispose();
+                //}
+
+                //_disposed = true;
             }
 
             public bool MoveNext()
             {
+                _indexer++;
+                return (_indexer < _papa.Count);
             }
 
             public void Reset() => throw new NotSupportedException();

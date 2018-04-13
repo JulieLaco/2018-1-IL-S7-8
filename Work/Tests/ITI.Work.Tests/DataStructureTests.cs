@@ -23,26 +23,29 @@ namespace ITI.Work.Tests
             }
 
             ///
-            using( IEnumerator<int> ie = myList.GetEnumerator() )
             {
-                while( ie.MoveNext() )
+                using( IEnumerator<int> e = myList.GetEnumerator() )
                 {
-                    Console.WriteLine( ie.Current );
+                    while( e.MoveNext() )
+                    {
+                        Console.WriteLine( e.Current );
+                    }
                 }
             }
 
-            ///
-            IEnumerator<int> e = myList.GetEnumerator();
-            try
             {
-                while( e.MoveNext() )
+                IEnumerator<int> e = myList.GetEnumerator();
+                try
                 {
-                    Console.WriteLine( e.Current );
+                    while( e.MoveNext() )
+                    {
+                        Console.WriteLine( e.Current );
+                    }
                 }
-            }
-            finally
-            {
-                e.Dispose();
+                finally
+                {
+                    e.Dispose();
+                }
             }
 
         }

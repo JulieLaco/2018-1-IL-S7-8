@@ -180,6 +180,19 @@ namespace ITI.Work.Tests
                 Assert.Fail( "No way to be here!" );
             }
         }
+
+        [Test]
+        public void dictionary_yield_return()
+        {
+            var d = new ITIDictionary<int, string>();
+            int i = 0;
+
+            while( i < 150 )
+            {
+                d.Add( i, Guid.NewGuid().ToString() );
+                i++;
+            }       
+        }
     }
 }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace ITI.Work.Tests
 {
@@ -59,8 +60,8 @@ namespace ITI.Work.Tests
             byte[] readBack = Read( written, password );
             readBack.Should().BeEquivalentTo( data );
 
-            byte[] readFailed = Read( written, password + password );
-            //readFailed.Should().NotBeEquivalentTo( data );
+            byte[] readFailed = Read( written, "!" + password );
+            readFailed.Should().NotBeEquivalentTo( data );
         }
 
         [TestCase( "p1", 3 )]
@@ -80,7 +81,7 @@ namespace ITI.Work.Tests
                 o.CopyTo( k, bufferSize );
             }
 
-            //File.ReadAllBytes( original ).Should().NotBeEquivalentTo( File.ReadAllBytes( krabouilled ) );
+            File.ReadAllBytes( original ).Should().NotBeEquivalentTo( File.ReadAllBytes( krabouilled ) );
 
             //krabouilled => readBack (.txt)
             using( var source = new FileStream( krabouilled, FileMode.Open, FileAccess.Read ) )
@@ -90,7 +91,7 @@ namespace ITI.Work.Tests
                 uk.CopyTo( target, bufferSize + 1 );
             }
 
-            //File.ReadAllBytes( original ).Should().BeEquivalentTo( File.ReadAllBytes( readBack ) );
+            File.ReadAllBytes( original ).Should().BeEquivalentTo( File.ReadAllBytes( readBack ) );
         }
 
 
@@ -161,6 +162,28 @@ namespace ITI.Work.Tests
 
                 }
                 return result.ToArray();
+            }
+        }
+
+
+        static void WriteChunk( Stream output, IEnumerable<Stream> inputStreams, byte[] separator )
+        {
+            bool first = true;
+            foreach( var s in inputStreams )
+            {
+                if( !first ) output.Write( separator, 0, separator.Length );
+                first = false;
+                s.CopyTo( output );
+            }
+        }
+        static async Task WriteChunkAsync( Stream output, IEnumerable<Stream> inputStreams, byte[] separator )
+        {
+            bool first = true;
+            foreach( var s in inputStreams )
+            {
+                if( !first ) await output.WriteAsync( separator, 0, separator.Length );
+                first = false;
+                await s.CopyToAsync( output );
             }
         }
     }

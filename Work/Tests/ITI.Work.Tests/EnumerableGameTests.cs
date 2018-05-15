@@ -43,8 +43,8 @@ namespace ITI.Work.Tests
             return count;
         }
 
-        // IEnumerable<T> ==> IEnumerable<TResult>
-        //  T ==> IEnumerable<TResult>
+        // IEnumerable<T> => IEnumerable<TResult>
+        // T => IEnumerable<TResult>
         public static IEnumerable<TResult> SelectMany<T, TResult>( this IEnumerable<T> input, Func<T, IEnumerable<TResult>> selector )
         {
             foreach( var papa in input )
@@ -72,23 +72,21 @@ namespace ITI.Work.Tests
 
     }
 
+
     [TestFixture]
     public class EnumerableGameTests
     {
 
         long Multiply( IEnumerable<long> input )
         {
-            long idx = 0;
-
-            while(idx < count)
-            {
             long result = 1;
-            foreach( var x in input )
+
+            foreach(var x in input)
             {
                 result = result * x;
             }
             return result;
-            }
+        }
 
         IEnumerable<long> GetNumbers( long start, long count )
         {
@@ -97,15 +95,8 @@ namespace ITI.Work.Tests
 
 
         IEnumerable<string> NumbersToString( IEnumerable<long> input )
-            while( idx < count )
-            {
+        {
             foreach( var n in input ) yield return n.ToString();
-                {
-                    if( idx % i == 0 ) yield return start + idx;
-                }
-
-                idx++;
-            }
         }
 
         [Test]
@@ -125,13 +116,10 @@ namespace ITI.Work.Tests
             {
                 _source = s;
             }
-            IEnumerable<long> getMultipleOf = GetNumbersThatAreNotMultipleOf( 0, 10, test );
 
             public IEnumerable<string> KeepOnlyStringLongerThan2AndSortThem()
             {
                 return _source.Where( s => s.Length > 2 ).OrderBy( s => s );
-            }
-                Assert.AreEqual( i, x );
             }
         }
 
@@ -158,7 +146,7 @@ namespace ITI.Work.Tests
         {
             var r = GetNumbers( 0, 1000 )
                     .ThatAreNotMultipleOf( new long[] { 2, 3 } )
-                    .Where( v => (v%13) != 0 )
+                    .Where( v => (v % 13) != 0 )
                     .Where( v => v.ToString().Contains( '8' ) )
                     .Select( v => v.ToString() );
 
@@ -177,7 +165,8 @@ namespace ITI.Work.Tests
 
             // Anonymous function.
             int numberOfCallsToDelegate = 0;
-            var wDelegate = MyLinq.Where( r2, delegate ( long x ) {
+            var wDelegate = MyLinq.Where( r2, delegate ( long x )
+            {
                 numberOfCallsToDelegate++;
                 return (x % 13) != 0;
             } );
@@ -215,6 +204,6 @@ namespace ITI.Work.Tests
 
         }
     }
-
-
 }
+
+

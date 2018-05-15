@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace ITI.Work.Tests
 {
     // Comment: طة 
     [TestFixture]
-    publicclass StreamTests
+    public class StreamTests
     {
 
         static string ThisFilePath( [CallerFilePath]string p = null ) => p;
@@ -17,7 +18,7 @@ namespace ITI.Work.Tests
         [Test]
         public void saving_and_reading_this_file_and_it_must_be_the_same()
         {
-            byte[] content = File.ReadAllBytes( ThisFilePath());
+            byte[] content = File.ReadAllBytes( ThisFilePath() );
 
             using( var m = new MemoryStream() )
             {
@@ -25,7 +26,7 @@ namespace ITI.Work.Tests
                 m.Position = 0;
 
                 var newContent = new byte[7657645];
-                int nbRead = m.Read( newContent, 0, newConent.Length );
+                int nbRead = m.Read( newContent, 0, newContent.Length );
 
                 nbRead.Should().Be( content.Length );
             }
@@ -37,12 +38,13 @@ namespace ITI.Work.Tests
         {
             byte[] content = File.ReadAllBytes( ThisFilePath() );
 
-            using var m = new MemoryStream() )
+            using( var m = new MemoryStream() )
             using( var c = new GZipStream( m, CompressionMode.Compress ) )
             {
                 c.Write( content, 0, content.Length );
                 c.Flush();
-                m.Position.Should().BeLessThan( content.Length );            }
+                m.Position.Should().BeLessThan( content.Length );
+            }
 
         }
 
@@ -52,14 +54,14 @@ namespace ITI.Work.Tests
         {
             byte[] data = new byte[] { 0, 1, 2, 3, 4 };
 
-            byte[] writte = Write( data, password );
+            byte[] written = Write( data, password );
             written.Should().NotBeEquivalentTo( data );
 
             byte[] readBack = Read( written, password );
             readBack.Should().BeEquivalentTo( data );
 
-            byte[] readFailed = Read( written, password + password );
-            //readFailed.Should().NotBeEquivalentTo( data );
+            byte[] readFailed = Read( written, "!" + password );
+            readFailed.Should().NotBeEquivalentTo( data );
         }
 
         [TestCase( "p1", 3 )]
@@ -67,43 +69,43 @@ namespace ITI.Work.Tests
         [TestCase( "p3", 273 )]
         public void Krabouille_stream_on_file( string pwd, int bufferSize )
         {
-            tring original = ThisFilePath();
+            string original = ThisFilePath();
             string krabouilled = $"{original}.{pwd}.krab";
             string readBack = krabouilled + ".txt";
 
             //original => krabouilled (.krab)
-            using( var o = new FileStream( original, FileMode.Open, FileAcces.Read, FileShare.None ) )
+            using( var o = new FileStream( original, FileMode.Open, FileAccess.Read, FileShare.None ) )
             using( var target = new FileStream( krabouilled, FileMode.Create, FileAccess.Write, FileShare.None ) )
             using( var k = new KrabouilleStream( target, KrabouilleMode.Krabouille, pwd ) )
             {
-                o.CoyTo( k, bufferSize );
+                o.CopyTo( k, bufferSize );
             }
 
-            //File.ReadAllBytes( original ).Should().NotBeEquivalentTo( File.ReadAllBytes( krabouilled ) );
+            File.ReadAllBytes( original ).Should().NotBeEquivalentTo( File.ReadAllBytes( krabouilled ) );
 
             //krabouilled => readBack (.txt)
-            using( var source = new FileStream( krabouilled, FileMode.Open,FileAccess.Read ) )
+            using( var source = new FileStream( krabouilled, FileMode.Open, FileAccess.Read ) )
             using( var target = new FileStream( readBack, FileMode.Create, FileAccess.Write ) )
             using( var uk = new KrabouilleStream( source, KrabouilleMode.Unkrabouille, pwd ) )
             {
-                uk.CopyTo( target, bufferSie + 1 );
+                uk.CopyTo( target, bufferSize + 1 );
             }
 
-            //File.ReadAllBytes( original ).Should().BeEquivalentTo( File.ReadAllBytes( readBack ) );
+            File.ReadAllBytes( original ).Should().BeEquivalentTo( File.ReadAllBytes( readBack ) );
         }
 
 
         [Test]
         public void Krabouille_stream_is_password_dependent()
         {
-            byte[] content = File.ReaAllBytes( ThisFilePath() );
+            byte[] content = File.ReadAllBytes( ThisFilePath() );
 
             byte[] f = Write( content, "first" );
             byte[] s = Write( content, "second" );
 
             f.Should().NotBeEquivalentTo( content );
             s.Should().NotBeEquivalentTo( content );
-            f.Should().NotBequivalentTo( s );
+            f.Should().NotBeEquivalentTo( s );
 
             byte[] fBack = Read( f, "first" );
             byte[] sBack = Read( s, "second" );
@@ -113,21 +115,21 @@ namespace ITI.Work.Tests
         }
 
         [Test]
-        publi void a_good_Krabouille_stream_is_non_deterministic()
+        public void a_good_Krabouille_stream_is_non_deterministic()
         {
             byte[] content = File.ReadAllBytes( ThisFilePath() );
 
             byte[] f = Write( content, "a password" );
             byte[] s = Write( content, "a password" );
 
-            f.Should().otBeEquivalentTo( content );
+            f.Should().NotBeEquivalentTo( content );
             s.Should().NotBeEquivalentTo( content );
             f.Should().NotBeEquivalentTo( s );
 
             byte[] fBack = Read( f, "a password" );
             byte[] sBack = Read( s, "a password" );
 
-            fBack.Should().BeEuivalentTo( content );
+            fBack.Should().BeEquivalentTo( content );
             sBack.Should().BeEquivalentTo( content );
         }
 
@@ -135,7 +137,7 @@ namespace ITI.Work.Tests
         {
             using( var m = new MemoryStream() )
             {
-                using( var k = new KrabouilleStream m, KrabouilleMode.Krabouille, password ) )
+                using( var k = new KrabouilleStream( m, KrabouilleMode.Krabouille, password ) )
                 {
                     k.Write( data, 0, data.Length );
                     k.Flush();
@@ -144,22 +146,44 @@ namespace ITI.Work.Tests
             }
         }
 
-        byte[] Read( byte[] data, strig password )
+        byte[] Read( byte[] data, string password )
         {
             List<byte> result = new List<byte>();
             using( var m = new MemoryStream( data ) )
             {
                 byte[] buffer = new byte[128];
-                using( var uk = new KrabouilleStream( m, KrabouilleMode.Unkrabuille, password ) )
+                using( var uk = new KrabouilleStream( m, KrabouilleMode.Unkrabouille, password ) )
                 {
                     int nbRead;
                     while( (nbRead = uk.Read( buffer, 0, buffer.Length )) > 0 )
                     {
                         for( int i = 0; i < nbRead; ++i ) result.Add( buffer[i] );
-                   }
+                    }
 
                 }
                 return result.ToArray();
+            }
+        }
+
+
+        static void WriteChunk( Stream output, IEnumerable<Stream> inputStreams, byte[] separator )
+        {
+            bool first = true;
+            foreach( var s in inputStreams )
+            {
+                if( !first ) output.Write( separator, 0, separator.Length );
+                first = false;
+                s.CopyTo( output );
+            }
+        }
+        static async Task WriteChunkAsync( Stream output, IEnumerable<Stream> inputStreams, byte[] separator )
+        {
+            bool first = true;
+            foreach( var s in inputStreams )
+            {
+                if( !first ) await output.WriteAsync( separator, 0, separator.Length );
+                first = false;
+                await s.CopyToAsync( output );
             }
         }
     }

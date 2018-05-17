@@ -2,12 +2,13 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WebCore
 {
     public interface IDatabaseCurrentUserInfo
     {
-        bool GetConsentToWinOrLoose();
+        Task<bool> GetConsentToWinOrLoose();
 
     }
 
@@ -15,14 +16,14 @@ namespace WebCore
     {
         readonly IDatabaseCurrentUserInfo _userDb;
 
-        public WinOrLooseUserConsentService( IDatabaseCurrentUserInfo userDb )
+        public WinOrLooseUserConsentService( IDatabaseCurrentUserInfo userDb = null )
         {
             _userDb = userDb;
         }
 
-        public bool Win( HttpContext c )
+        public async Task<bool> Win( HttpContext c )
         {
-            if( _userDb.GetConsentToWinOrLoose() )
+            if( await _userDb.GetConsentToWinOrLoose() )
             {
                 return Environment.TickCount % 2 == 0;
             }

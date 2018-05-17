@@ -3,27 +3,28 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WebCore
 {
     public interface IWinOrLooseService
     {
-        bool Win( HttpContext c );
+        Task<bool> Win( HttpContext c );
     }
 
 
     public class DefaultWinOrLooseService : IWinOrLooseService
     {
-        int _rate;
+        readonly IOptionsSnapshot<WinOrLooseOptions> _options;
 
-        public DefaultWinOrLooseService( IOptions<WinOrLooseOptions> options )
+        public DefaultWinOrLooseService( IOptionsSnapshot<WinOrLooseOptions> options )
         {
-            _rate = options.Value.OneOutOf;
+            _options = options;
         }
 
-        public bool Win( HttpContext c )
+        public Task<bool> Win( HttpContext c )
         {
-            return Environment.TickCount % _rate == 0;
+            return Task.FromResult( Environment.TickCount % _options.Value.OneOutOf == 0 );
         }
     }
 

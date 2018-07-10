@@ -20,6 +20,22 @@ namespace CT.Tokenizer.Tests
             Evaluate(text).Should().Be(result);
         }
 
+        [Theory]
+        [InlineData("1 + 2", 1 + 2)]
+        [InlineData("1 - 1 + 2", 1 - 1 + 2)]
+        [InlineData("5 + 6", 5 + 6)]
+        [InlineData("3 * 1 + 2", 3 * 1 + 2)]
+        [InlineData("1 + 2 * 3", 1 + 2 * 3)]
+        [InlineData("1 - 2 * 3", 1 - 2 * 3)]
+        [InlineData("4 / 2 * 3", 4 / 2 * 3)]
+        [InlineData("3 + 5 * 125 / 7 - 6 + 10", 3 + 5 * 125 / 7 - 6 + 10)]
+        [InlineData("(- 2) + (- 7)", (-2) + (-7))]
+        [InlineData("- 2 +- (- 7)", -2 + -(-7))]
+        [InlineData("-5*-(4+8*-(2+5))", -5 * -(4 + 8 * -(2 + 5)))]
+        public void bad_grammar(string text, int result)
+        {
+            Evaluate(text).Should().Be(result);
+        }
 
         static int Evaluate(string text) => EvalExpression(new Tokenizer(text));
 
@@ -32,12 +48,13 @@ namespace CT.Tokenizer.Tests
         static int EvalExpression(Tokenizer t)
         {
             int term = EvalTerm(t);
-            if (t.MatchAdditive( out var op ))
+            while (t.MatchAdditive(out var op))
             {
-                int expr = EvalExpression(t);
-                return op == TokenType.Plus
-                                ? term + expr
-                                : term - expr;
+                int nextTerm = EvalTerm(t);
+                if (op == TokenType.Plus)
+                    term += nextTerm;
+                else
+                    term -= nextTerm;
             }
             return term;
         }
@@ -50,12 +67,13 @@ namespace CT.Tokenizer.Tests
         static int EvalTerm(Tokenizer t)
         {
             int factor = EvalFactor(t);
-            if (t.MatchMultiplicative( out var op ))
+            while (t.MatchMultiplicative(out var op))
             {
-                int term = EvalTerm(t);
-                return op == TokenType.Mult
-                                ? factor * term
-                                : factor / term;
+                int nextFactor = EvalFactor(t);
+                if (op == TokenType.Mult)
+                    factor *= nextFactor;
+                else
+                    factor /= nextFactor;
             }
             return factor;
         }
@@ -67,12 +85,18 @@ namespace CT.Tokenizer.Tests
         /// <returns></returns>
         static int EvalFactor(Tokenizer t)
         {
-            if (t.Match(out int number)) return number;
+            bool isNegative = t.Match(TokenType.Minus);
 
-            if( t.Match( TokenType.OpenPar ) )
+            return isNegative ? -EvalPositiveFactor(t) : EvalPositiveFactor(t);
+        }
+
+        static int EvalPositiveFactor(Tokenizer t)
+        {
+            if (t.Match(out int number)) return number;
+            if (t.Match(TokenType.OpenPar))
             {
                 int expr = EvalExpression(t);
-                if (!t.Match( TokenType.ClosePar)) throw new Exception("Expected ).");
+                if (!t.Match(TokenType.ClosePar)) throw new Exception("Expected ).");
                 return expr;
             }
             throw new Exception("Syntax error.");
